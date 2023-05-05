@@ -1,3 +1,4 @@
+package cis761;
 import java.util.Properties;
 import java.util.Map.Entry;
 import java.sql.Connection;
@@ -99,7 +100,7 @@ public class Functions {
 					 + "WHERE m.movie_name like ? and x.movie_id = m.movie_id and x.actor_id = y.actor_id order by m.movie_id";
 	private PreparedStatement _fast_actor_id_statement;
 
-	public Query() {
+	public Functions() {
 	}
 
     /**********************************************************/

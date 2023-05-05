@@ -1,3 +1,5 @@
+package cis761;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
@@ -15,7 +17,7 @@ public class LoginAndMenu {
 		System.out.println("> quit");
 	}
 
-	public static void menu(int cid, Query q) {
+	public static void menu(int cid, Functions q) {
 		/* cid = customer id (obtained from the command line) */
 
 		/* prepare to read the user's command and parameter(s) */
@@ -127,7 +129,7 @@ public class LoginAndMenu {
 		try {
 
 			/* prepare the database connection stuff */
-			Query q = new Query();
+			Functions q = new Functions();
 			q.openConnections();
 			q.prepareStatements();
 
