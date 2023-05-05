@@ -6,18 +6,30 @@ import java.util.StringTokenizer;
 
 public class LoginAndMenu {
 
-	public static void usage() {
+	public static void regularMenu() {
 		/* prints the choices for commands and parameters */
 		System.out.println("\n *** Please enter one of the following commands *** ");
-		System.out.println("> search <movie title>");
-		System.out.println("> plan [<plan id>]");
-		System.out.println("> rent <movie id>");
-		System.out.println("> return <movie id>");
-		System.out.println("> fastsearch <movie title>");
+		System.out.println("> search");
 		System.out.println("> quit");
 	}
 
-	public static void menu(int cid, Functions q) {
+	public static void adminMenu() {
+		/* prints the choices for commands and parameters */
+		System.out.println("\n *** Please enter one of the following commands *** ");
+		System.out.println("> search");
+		System.out.println("> add");
+		System.out.println("> delete <Full Movie Name>");
+		System.out.println("> quit");
+	}
+
+	public static void searchOptions() {
+		/* prints the choices for commands and parameters */
+		System.out.println("\n *** Please enter one of the search options *** ");
+		System.out.println("> name <movie name>");
+		System.out.println("> genre <gennre name>");
+	}
+
+	public static void menu(User user, Functions q) {
 		/* cid = customer id (obtained from the command line) */
 
 		/* prepare to read the user's command and parameter(s) */
@@ -27,12 +39,15 @@ public class LoginAndMenu {
 
 			try {
 
-				usage();
+				if(user.getStatus().equals("admin")){
+					adminMenu();
+				}else{
+					regularMenu();
+				}	
 
 				BufferedReader r = new BufferedReader(new InputStreamReader(
 						System.in));
 				/* before prompting the user, tell her/him how many movies he can still rent */
-				q.transaction_personal_data(cid);
 				System.out.print("> ");
 
 				response = r.readLine();
@@ -41,15 +56,17 @@ public class LoginAndMenu {
 				String t = st.nextToken();
 
 				if (t.equals("search")) {
-					/* search for a movie whose title matches a string */
-					if (st.hasMoreTokens()) {
-						String movie_title = st.nextToken("\n").trim(); /* read the rest of the line */
-						System.out.println("Searching for the movie '"
-								+ movie_title + "'");
-						q.transaction_search(cid, movie_title);
-					} else {
-						System.out
-								.println("Error: need to type in movie title");
+					searchOptions();
+					BufferedReader r2 = new BufferedReader(new InputStreamReader(
+						System.in));
+					response = r2.readLine();
+					st = new StringTokenizer(response);
+					String searchOption = st.nextToken();
+					if(!searchOption.isEmpty()){
+						String keyword = st.nextToken();
+						q.transaction_search(searchOption, keyword);
+					}else{
+						System.out.println("Error: need to choose a vaid search option");
 					}
 				}
 
@@ -134,11 +151,13 @@ public class LoginAndMenu {
 			q.prepareStatements();
 
 			/* authenticate the user */
-			int cid = q.transaction_login(args[0], args[1]);			
-			if (cid >= 0)
-				menu(cid, q); /* menu(...) does the real work */
-			else
+			User user = q.transaction_login(args[0], args[1]);			
+			if (user != null){
+				System.out.println("Hi " + user.getName() + " Welcome back to the Movie Base!");
+				menu(user, q); /* menu(...) does the real work */
+			}else{
 				System.out.println("Sorry..."); /* innocent mistake, or malicious attack ? */
+			}				
 			q.closeConnections();
 
 		} catch (Exception e) {
