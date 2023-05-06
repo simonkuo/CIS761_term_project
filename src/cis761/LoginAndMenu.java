@@ -2,7 +2,17 @@ package cis761;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.StringTokenizer;
+
+import javax.swing.text.DateFormatter;
+
+import cis761.entity.Genres;
+import cis761.entity.Languages;
+import cis761.entity.Movies;
+import cis761.entity.User;
 
 public class LoginAndMenu {
 
@@ -64,67 +74,118 @@ public class LoginAndMenu {
 					String searchOption = st.nextToken();
 					if(!searchOption.isEmpty()){
 						String keyword = st.nextToken();
-						q.transaction_search(searchOption, keyword);
+						q.transactionSearch(searchOption, keyword);
 					}else{
 						System.out.println("Error: need to choose a vaid search option");
 					}
-				}
+				} else if (user.getStatus().equals("admin") && t.equals("add")) {
+					Movies newMovie = new Movies();
+					//movie name is required
+					System.out.println("Please Enter Movie Name:");
+					BufferedReader r3 = new BufferedReader(new InputStreamReader(
+					System.in));
+					System.out.print("> ");
+					String movieTitle = r3.readLine();
+					if(movieTitle.isEmpty()){
+						System.out.println("Error: need to enter a vaid movie title");
+						continue;
+					}else{
+						newMovie.setTitle(movieTitle);
+					}
+					
+					System.out.println("Budget:");
+					r3 = new BufferedReader(new InputStreamReader(
+					System.in));
+					System.out.print("> ");
+					double budget = Double.parseDouble(r3.readLine());
+					newMovie.setBudget(budget);
 
-				else if (t.equals("plan")) {
-					/* choose a new rental plan, or, if none is given, then list all available plans */
-					if (st.hasMoreTokens()) {
-						int plan_id = Integer.parseInt(st.nextToken());
-						/* need to check that plan_id is a valid plan id in the database, */
-						/* if yes, then set the new plan for the current customer */
-						/* if not, then list all available plans */
-						boolean correct_plan = q.helper_check_plan(plan_id);
-						if (correct_plan) {
-							System.out.println("Switching to plan " + plan_id);
-							q.transaction_choose_plan(cid, plan_id);
-						} else {
-							System.out.println("Incorrect plan id " + plan_id
-									+ "\nAvailable plans are:");
-							q.transaction_list_plans();
+					System.out.println("Overview:");
+					r3 = new BufferedReader(new InputStreamReader(
+					System.in));
+					System.out.print("> ");
+					String overview = r3.readLine();
+					newMovie.setOverview(overview);
+
+					System.out.println("Release Date (yyyy-mm-dd) or leave blank:");
+					r3 = new BufferedReader(new InputStreamReader(
+					System.in));
+					System.out.print("> ");
+					String tmpReleaseDate = r3.readLine();
+					if(!tmpReleaseDate.isEmpty()){
+						var df = new SimpleDateFormat("yyyy-MM-dd");
+						Date releaseDate = df.parse(tmpReleaseDate);
+						newMovie.setReleaseDate(releaseDate);
+					}
+
+					System.out.println("Revenue:");
+					r3 = new BufferedReader(new InputStreamReader(
+					System.in));
+					System.out.print("> ");
+					double revenue = Double.parseDouble(r3.readLine());
+					newMovie.setRevenue(revenue);
+
+					
+					System.out.println("Runtime:");
+					r3 = new BufferedReader(new InputStreamReader(
+					System.in));
+					System.out.print("> ");
+					int runTime = Integer.parseInt(r3.readLine());
+					newMovie.setRunTime(runTime);
+
+					System.out.println("Do you want to add more details? (Y/N):");
+					r3 = new BufferedReader(new InputStreamReader(
+					System.in));
+					System.out.print("> ");
+					String answer = r3.readLine();
+
+					if(answer.equalsIgnoreCase("y")){
+						//list genre or languages with id for selection
+						System.out.println("Do you want to add genre? (Y/N):");
+						r3 = new BufferedReader(new InputStreamReader(
+						System.in));
+						answer = r3.readLine();
+						if(answer.equalsIgnoreCase("y")){
+							List<Genres> genres = q.getGenres();
+							if(genres.size() > 0){
+								System.out.println("Please select genre id from list of genres:");
+								for (Genres aGenres : genres) {
+									System.out.println(aGenres.getId() + " " + aGenres.getName());
+								}
+								r3 = new BufferedReader(new InputStreamReader(
+								System.in));
+								System.out.print("> ");
+								String genreId = r3.readLine();
+								newMovie.setGenreId(Integer.parseInt(genreId));
+							}
 						}
-					} else {
-						System.out.println("Available plans:");
-						q.transaction_list_plans();
+
+						System.out.println("Do you want to add movie language? (Y/N):");
+						r3 = new BufferedReader(new InputStreamReader(
+						System.in));
+						answer = r3.readLine();
+						if(answer.equalsIgnoreCase("y")){
+							List<Languages> languages = q.getLanguages();
+							if(languages.size() > 0){
+								System.out.println("Please select language code from list of genres:");
+								for (Languages aLanguages : languages) {
+									System.out.println(aLanguages.getLanguageCode() + " " + aLanguages.getName());
+								}
+								r3 = new BufferedReader(new InputStreamReader(
+								System.in));
+								System.out.print("> ");
+								String languageCode = r3.readLine();
+								newMovie.setLanguageCode(languageCode);
+							}
+						}
 					}
-				}
 
-				else if (t.equals("rent")) {
-					/* rent the movie with the given movie id */
-					String movie_id = st.nextToken("\n").trim();
-					System.out.println("Renting the movie id " + movie_id);
-					q.transaction_rent(cid, movie_id);
-				}
+					
+					
 
-				else if (t.equals("return")) {
-					/* return a movie previously rented */
-					String movie_id = st.nextToken("\n").trim();
-					/* return the movie with mid */
-					System.out.println("Returning the movie id " + movie_id);
-					q.transaction_return(cid, movie_id);
-				}
-
-				else if (t.equals("fastsearch")) {
-					/* same as search, only faster */
-					if (st.hasMoreTokens()) {
-						String movie_title = st.nextToken("\n").trim();
-						System.out.println("Fast Searching for the movie '"
-								+ movie_title + "'");
-						q.transaction_fast_search(cid, movie_title);
-					} else {
-						System.out
-								.println("Error: need to type in movie title");
-					}
-				}
-
-				else if (t.equals("quit")) {
+				}else if (t.equals("quit")) {
 					System.exit(0);
-				}
-
-				else {
+				}else {
 					System.out.println("Error: unrecognized command '" + t
 							+ "'");
 				}
@@ -139,7 +200,7 @@ public class LoginAndMenu {
 
 		if (args.length < 2)
 		{
-			System.out.println("Usage: java SQLassign CUSTOMER_ID CUSTOMER_PASSWORD");
+			System.out.println("Usage: java LoginAndMenu USER_EMAIL USER_PASSWORD");
 			System.exit(1);
 		}
 		
@@ -148,10 +209,9 @@ public class LoginAndMenu {
 			/* prepare the database connection stuff */
 			Functions q = new Functions();
 			q.openConnections();
-			q.prepareStatements();
 
 			/* authenticate the user */
-			User user = q.transaction_login(args[0], args[1]);			
+			User user = q.transactionLogin(args[0], args[1]);			
 			if (user != null){
 				System.out.println("Hi " + user.getName() + " Welcome back to the Movie Base!");
 				menu(user, q); /* menu(...) does the real work */
