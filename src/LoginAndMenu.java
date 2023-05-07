@@ -1,18 +1,9 @@
-package cis761;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import javax.swing.text.DateFormatter;
-
-import cis761.entity.Genres;
-import cis761.entity.Languages;
-import cis761.entity.Movies;
-import cis761.entity.User;
 
 public class LoginAndMenu {
 

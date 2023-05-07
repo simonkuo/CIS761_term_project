@@ -1,5 +1,3 @@
-package cis761.entity;
-
 public class Genres {
     int id;
     String name;

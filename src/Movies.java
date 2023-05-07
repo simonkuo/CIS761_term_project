@@ -1,5 +1,3 @@
-package cis761.entity;
-
 import java.util.Date;
 
 public class Movies {

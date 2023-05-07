@@ -1,5 +1,3 @@
-package cis761.entity;
-
 public class Languages {
     String languageCode;
     String name;

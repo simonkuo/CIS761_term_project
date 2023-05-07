@@ -1,23 +1,11 @@
-package cis761;
 import java.util.Properties;
-import java.util.Map.Entry;
-
-import cis761.entity.Genres;
-import cis761.entity.Languages;
-import cis761.entity.Movies;
-import cis761.entity.User;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
-import java.sql.*;
-
 import java.io.FileInputStream;
 
 /**
