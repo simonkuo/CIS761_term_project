@@ -1,0 +1,29 @@
+alter table movieCompany drop foreign key `movieCompany_ibfk_1`;
+
+alter table movieCountry drop foreign key `movieCountry_ibfk_1`;
+
+alter table movieGenres drop foreign key `movieGenres_ibfk_1`; alter table movieGenres drop foreign key `movieGenres_ibfk_2`;
+
+alter table movieLanguages drop foreign key `movieLanguages_ibfk_1`; alter table movieLanguages drop foreign key `movieLanguages_ibfk_2`;
+
+alter table rates drop foreign key `rates_ibfk_1`; alter table rates drop foreign key `rates_ibfk_2`;
+
+
+ALTER TABLE movies CHANGE id id INT(11) AUTO_INCREMENT;
+
+ALTER TABLE movieCompany add FOREIGN KEY (movieID) REFERENCES movies(id), add FOREIGN KEY (companyID) REFERENCES company(id);
+
+ALTER TABLE movieCountry add FOREIGN KEY (movieID) REFERENCES movies(id), add FOREIGN KEY (countryCode) REFERENCES country(code);
+
+delete ml.* from movieLanguages ml left join movies m on m.id = ml.movieID where m.id is null;
+
+ALTER TABLE movieLanguages add FOREIGN KEY (languageCode) REFERENCES languages(languageCode), add FOREIGN KEY (movieID ) REFERENCES movies(id);
+
+delete mg.* from movieGenres mg left join movies m on m.id = mg.movieID where m.id is null;
+
+ALTER TABLE movieGenres add FOREIGN KEY (movieID) REFERENCES movies(id),add FOREIGN KEY (genreID) REFERENCES genres(id);
+
+
+alter table movies add constraint `unique_title_idx` unique (title);
+ 
+alter table users add column `password` varchar(255) DEFAULT NULL, add column `status` varchar(15) NOT NULL DEFAULT 'regular';

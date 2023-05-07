@@ -1,5 +1,8 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +29,7 @@ public class LoginAndMenu {
 	public static void searchOptions() {
 		/* prints the choices for commands and parameters */
 		System.out.println("\n *** Please enter one of the search options *** ");
-		System.out.println("> name <movie name>");
+		System.out.println("> title <movie name>");
 		System.out.println("> genre <gennre name>");
 	}
 
@@ -58,6 +61,7 @@ public class LoginAndMenu {
 
 				if (t.equals("search")) {
 					searchOptions();
+					System.out.print("> ");
 					BufferedReader r2 = new BufferedReader(new InputStreamReader(
 						System.in));
 					response = r2.readLine();
@@ -170,9 +174,7 @@ public class LoginAndMenu {
 							}
 						}
 					}
-
-					
-					
+					q.addMovie(newMovie);
 
 				}else if (t.equals("quit")) {
 					System.exit(0);
@@ -182,7 +184,9 @@ public class LoginAndMenu {
 				}
 
 			} catch (Exception e) {
-				System.out.println("Error: " + e.getMessage());
+				//System.out.println("Error: " + e.getMessage());
+				 
+				q.printTrace(e);
 			}
 		}
 	}
@@ -194,11 +198,9 @@ public class LoginAndMenu {
 			System.out.println("Usage: java LoginAndMenu USER_EMAIL USER_PASSWORD");
 			System.exit(1);
 		}
-		
+		/* prepare the database connection stuff */
+		Functions q = new Functions();
 		try {
-
-			/* prepare the database connection stuff */
-			Functions q = new Functions();
 			q.openConnections();
 
 			/* authenticate the user */
@@ -212,7 +214,7 @@ public class LoginAndMenu {
 			q.closeConnections();
 
 		} catch (Exception e) {
-			System.out.println("Error: " + e.getMessage());
+			q.printTrace(e);
 		}
 
 	}

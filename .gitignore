@@ -1,3 +1,4 @@
 bin/*.class
 src/Query.java
 src/SQLassign.java
+src/Test.java

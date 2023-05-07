@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Runs queries against a back-end database
@@ -92,11 +94,11 @@ public class Functions {
 		_user_login_statement.setString(1,name);
 		_user_login_statement.setString(2,password);
 	    ResultSet results = _user_login_statement.executeQuery();
-		if(results != null){
+		if(results.next()){
 			user = new User();
 	    	user.setId(results.getInt(1));
 			user.setName(results.getString(2));
-			user.setStatus(results.getString(3));
+			user.setStatus(results.getString(4));
 		} 
 		results.close();
 		return user;
@@ -111,15 +113,13 @@ public class Functions {
 			throws Exception {
 		ResultSet movie_set = null;
 		PreparedStatement _search_statement;
-
-		if(option.equals("movie")){
-			StringBuilder query = new StringBuilder(_search_sql);
+		StringBuilder query = new StringBuilder(_search_sql);
+		if(option.equals("title")){
 			query.append("WHERE m.title like ? ORDER BY m.id");
-			_search_statement = _mySqlDB.prepareStatement(_search_sql);
+			_search_statement = _mySqlDB.prepareStatement(query.toString());
 		}else{
-			StringBuilder query = new StringBuilder(_search_sql);
-			query.append("WHERE mg.name like ? ORDER BY m.id");
-			_search_statement = _mySqlDB.prepareStatement(_search_sql);
+			query.append("WHERE g.name like ? ORDER BY m.id");
+			_search_statement = _mySqlDB.prepareStatement(query.toString());
 		}
 
 		_search_statement.setString(1, '%' + keyword + '%');
@@ -144,9 +144,6 @@ public class Functions {
 		System.out.println();
 	}
 
-	public void transactionAddMovie(String movieName, double budget, String overview , Date releaseDate, double revenue, int runTime){
-
-	}
 
 	/*
 	 * This method adds new movie and additonal movie details such as genres and languages.
@@ -166,7 +163,7 @@ public class Functions {
 				insertMovieStatement.setDouble(2, newMovie.getBudget());
 				insertMovieStatement.setString(3, newMovie.getOverview());
 				if(newMovie.getReleaseDate() != null){
-					insertMovieStatement.setDate(4, java.sql.Date.valueOf(newMovie.getReleaseDate().toString()));
+					insertMovieStatement.setDate(4, new java.sql.Date(newMovie.getReleaseDate().getTime()));
 				}
 				insertMovieStatement.setDouble(5, newMovie.getRevenue());
 				insertMovieStatement.setInt(6, newMovie.getRunTime());
@@ -176,12 +173,12 @@ public class Functions {
 					insertMovieStatement.close();
 				}catch(Exception e){
 					System.out.println("can not close PreparedStatement");
-					e.printStackTrace();
+					this.printTrace(e);
 				}	
 			}catch(Exception e){
 				_mySqlDB.rollback();
 				System.out.println("can not insert new movie");
-				e.printStackTrace();
+				this.printTrace(e);
 			}
 
 			try{
@@ -195,11 +192,11 @@ public class Functions {
 					selecttMovieStatement.close();
 				}catch(Exception e){
 					System.out.println("can not close PreparedStatement");
-					e.printStackTrace();
+					this.printTrace(e);
 				}				
 			}catch(Exception e){
 				System.out.println("can not get new movie id");
-				e.printStackTrace();
+				this.printTrace(e);
 			}
 
 			try{
@@ -213,13 +210,13 @@ public class Functions {
 						insertGenreStatement.close();
 					}catch(Exception e){
 						System.out.println("can not close PreparedStatement");
-						e.printStackTrace();
+						this.printTrace(e);
 					}	
 				}			
 			}catch(Exception e){
 				_mySqlDB.rollback();
 				System.out.println("can not insert new genre");
-				e.printStackTrace();
+				this.printTrace(e);
 			}
 
 			try{
@@ -233,23 +230,23 @@ public class Functions {
 						insertLanguageStatement.close();
 					}catch(Exception e){
 						System.out.println("can not close PreparedStatement");
-						e.printStackTrace();
+						this.printTrace(e);
 					}	
 				}				
 			}catch(Exception e){
 				_mySqlDB.rollback();
 				System.out.println("can not insert new language");
-				e.printStackTrace();
+				this.printTrace(e);
 			}			
 		}catch(Exception e){
 			System.out.println("can not insert all movie details");
-			e.printStackTrace();
+			this.printTrace(e);
 		}finally{
 			try{
 				movieIdSet.close();
 			}catch(Exception e){
 				System.out.println("can not close result set");
-				e.printStackTrace();
+				this.printTrace(e);
 			}	
 		}
 	}
@@ -271,7 +268,7 @@ public class Functions {
 			}
 		}catch(Exception e){
 			System.out.println("can not get genre");
-			e.printStackTrace();
+			this.printTrace(e);
 		}
 		return genres;
 	}
@@ -293,9 +290,21 @@ public class Functions {
 			}
 		}catch(Exception e){
 			System.out.println("can not get language");
-			e.printStackTrace();
+			this.printTrace(e);
 		}
 		return languages;
-	}	
+	}
+	
+	public void printTrace(Exception e){
+		StringWriter sw = new StringWriter();
+	
+		// create a PrintWriter
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+
+		String error = sw.toString();
+
+		System.out.println("Error:\n" + error);
+	}
 
 }
