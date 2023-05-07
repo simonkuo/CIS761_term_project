@@ -28,10 +28,10 @@ public class Functions {
 	// Canned queries
 
 	private String _search_sql = "SELECT m.*, g.name as genre, l.name Language, c.name country, y.name company FROM movies m "
-	+ "left join movieGenres mg on m.id = mg.movieID join genres g on g.id = mg.genreID "
-	+ "left join movieLanguages ml on m.id = ml.movieID join languages l on l.languageCode = ml.languageCode "
-	+ "left join movieCountry mc on m.id = mc.movieID join country c on c.code = mc.countryCode "
-	+ "left join movieCompany my on m.id = my.movieID join company y on y.id = my.companyID ";
+	+ "left join movieGenres mg on m.id = mg.movieID left join genres g on g.id = mg.genreID "
+	+ "left join movieLanguages ml on m.id = ml.movieID left join languages l on l.languageCode = ml.languageCode "
+	+ "left join movieCountry mc on m.id = mc.movieID left join country c on c.code = mc.countryCode "
+	+ "left join movieCompany my on m.id = my.movieID left join company y on y.id = my.companyID ";
 	
 	private String select_movie_id_sql = "select id from movies where title = ?";
 	private String insert_movie_sql = "insert into movies (title, budget, overview, releaseDate, revenue, runTime) values (?,?,?,?,?,?)";
