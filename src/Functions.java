@@ -3,6 +3,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +43,13 @@ public class Functions {
 	// private String insert_country_sql = "insert ignore into country (name) values (?)";
 	// private String insert_movie_country_sql = "insert ignore into movieCountry (movieID,countryCode) values (?,?)";
 	// private String insert_movie_company_sql = "insert ignore into movieCompany (movieID,companyID) values (?,?)";
+
+	private String delete_movie_sql = "delete from movies where title = ?";
+	private String delete_movie_genre_sql = "delete from movieGenres where movieID = ?";	
+	private String delete_movie_language_sql = "delete from movieLanguages where movieID = ?";
+	private String delete_movie_company_sql = "delete from movieCompany where movieID = ?";
+	private String delete_movie_country_sql = "delete from movieCountry where movieID = ?";
+	private String delete_movie_rate_sql = "delete from rates where movieID = ?";
 
 	/* uncomment, and edit, after your create your own user database */
 	private String _user_login_sql = "SELECT * FROM users WHERE email = ? and password = ?";
@@ -237,7 +245,8 @@ public class Functions {
 				_mySqlDB.rollback();
 				System.out.println("can not insert new language");
 				this.printTrace(e);
-			}			
+			}
+			System.out.println(newMovie.getTitle() + " is successfully added");			
 		}catch(Exception e){
 			System.out.println("can not insert all movie details");
 			this.printTrace(e);
@@ -251,6 +260,102 @@ public class Functions {
 		}
 	}
 
+/*
+	 * This method delete movie and details.
+	 */
+	public void transactionDeleteMovie(String movieTitle) throws SQLException {
+    PreparedStatement selectMovieStatement = null;
+    PreparedStatement deleteMovieStatement = null;
+    PreparedStatement deleteGenreStatement = null;
+    PreparedStatement deleteLanguageStatement = null;
+    PreparedStatement deleteCompanyStatement = null;
+    PreparedStatement deleteCountryStatement = null;
+    PreparedStatement deleteRateStatement = null;
+    ResultSet movieIdSet = null;
+
+    try {
+		_mySqlDB.setAutoCommit(false);
+        selectMovieStatement = _mySqlDB.prepareStatement(this.select_movie_id_sql);
+        selectMovieStatement.setString(1, movieTitle);
+        movieIdSet = selectMovieStatement.executeQuery();
+		if(movieIdSet.next() != false){
+			do{
+				int movieId = movieIdSet.getInt(1);
+				deleteMovieRelations(movieId);
+			} while (movieIdSet.next());
+
+			deleteMovieStatement = _mySqlDB.prepareStatement(this.delete_movie_sql);
+			deleteMovieStatement.setString(1, movieTitle);
+			deleteMovieStatement.executeUpdate();
+
+			_mySqlDB.commit();
+			System.out.println(movieTitle + " is successfully deleted");
+		}else{
+			System.out.println("can not find " + movieTitle + " to delete");
+		}
+    } catch (SQLException e) {
+		this.printTrace(e);
+        _mySqlDB.rollback();
+        throw e;
+    } finally {
+        closeResources(movieIdSet, selectMovieStatement, deleteMovieStatement, deleteGenreStatement,
+                deleteLanguageStatement, deleteCompanyStatement, deleteCountryStatement, deleteRateStatement);
+    }
+}
+
+private void deleteMovieRelations(int movieId) throws SQLException {
+    deleteGenres(movieId);
+    deleteLanguages(movieId);
+    deleteCompanies(movieId);
+    deleteCountries(movieId);
+    deleteRates(movieId);
+}
+
+private void deleteGenres(int movieId) throws SQLException {
+    deleteRecords(this.delete_movie_genre_sql, movieId);
+}
+
+private void deleteLanguages(int movieId) throws SQLException {
+    deleteRecords(this.delete_movie_language_sql, movieId);
+}
+
+private void deleteCompanies(int movieId) throws SQLException {
+    deleteRecords(this.delete_movie_company_sql, movieId);
+}
+
+private void deleteCountries(int movieId) throws SQLException {
+    deleteRecords(this.delete_movie_country_sql, movieId);
+}
+
+private void deleteRates(int movieId) throws SQLException {
+    deleteRecords(this.delete_movie_rate_sql, movieId);
+}
+
+private void deleteRecords(String deleteSql, int movieId) throws SQLException {
+    PreparedStatement deleteStatement = null;
+    try {
+        deleteStatement = _mySqlDB.prepareStatement(deleteSql);
+        deleteStatement.setInt(1, movieId);
+        deleteStatement.executeUpdate();
+    } catch (SQLException e) {
+        _mySqlDB.rollback();
+        throw e;
+    } finally {
+        closeResources(deleteStatement);
+    }
+}
+
+private void closeResources(AutoCloseable... resources) {
+    for (AutoCloseable resource : resources) {
+        if (resource != null) {
+            try {
+                resource.close();
+            } catch (Exception e) {
+                // Ignore errors while closing resources
+            }
+        }
+    }
+}
 	/*
 	 * This method returns all movie genres.
 	 */

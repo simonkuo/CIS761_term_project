@@ -22,7 +22,7 @@ public class LoginAndMenu {
 		System.out.println("\n *** Please enter one of the following commands *** ");
 		System.out.println("> search");
 		System.out.println("> add");
-		System.out.println("> delete <Full Movie Name>");
+		System.out.println("> delete");
 		System.out.println("> quit");
 	}
 
@@ -176,6 +176,18 @@ public class LoginAndMenu {
 					}
 					q.addMovie(newMovie);
 
+				}else if (user.getStatus().equals("admin") && t.equals("delete")) {
+					System.out.println("Please Enter Full Movie Name:");
+					BufferedReader r3 = new BufferedReader(new InputStreamReader(
+					System.in));
+					System.out.print("> ");
+					String movieTitle = r3.readLine();
+					if(movieTitle.isEmpty()){
+						System.out.println("Error: need to enter a vaid movie title");
+						continue;
+					}else{
+						q.transactionDeleteMovie(movieTitle);
+					}
 				}else if (t.equals("quit")) {
 					System.exit(0);
 				}else {
